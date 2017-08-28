@@ -1,2 +1,2 @@
-# Nerf
-Demo Team: Full Auto Frank Project Repo for learning and growth
+# Autonomous Nerf Turret
+Full Auto Frank Demonstration Repo for learning and growth
