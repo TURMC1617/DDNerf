@@ -7,6 +7,23 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <TabControl HorizontalAlignment="Left" Height="319" VerticalAlignment="Top" Width="517">
+            <TabItem Header="Setup">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="CV" Visibility="Visible">
+                <Grid Background="#FFE5E5E5">
+                    <ComboBox x:Name="camera_option" HorizontalAlignment="Left" VerticalAlignment="Top" Width="49">
+                        <ComboBoxItem x:Name="usb_zero" Content="USB0"></ComboBoxItem>
+                        <ComboBoxItem x:Name="usb_one" Content="USB1"></ComboBoxItem>
+                        
+                        
+                    </ComboBox>
+                    <Button x:Name="Start" Content="Start" HorizontalAlignment="Left" Margin="49,2,0,0" VerticalAlignment="Top" Width="75" Click="Start_Click"/>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+
     </Grid>
 </Window>
