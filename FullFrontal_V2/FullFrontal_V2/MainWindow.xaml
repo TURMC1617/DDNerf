@@ -16,10 +16,11 @@
                     <ComboBox x:Name="camera_option" HorizontalAlignment="Left" VerticalAlignment="Top" Width="49">
                         <ComboBoxItem x:Name="usb_zero" Content="USB0"></ComboBoxItem>
                         <ComboBoxItem x:Name="usb_one" Content="USB1"></ComboBoxItem>
-                        
-                        
+
+
                     </ComboBox>
-                    <Button x:Name="Start" Content="Start" HorizontalAlignment="Left" Margin="49,2,0,0" VerticalAlignment="Top" Width="75" Click="Start_Click"/>
+                    <Button x:Name="CV_Start" Content="Start" HorizontalAlignment="Left" Margin="49,2,0,0" VerticalAlignment="Top" Width="75" Click="CV_Start_Click"/>
+                    <Image  x:Name="CV_Output"   HorizontalAlignment="Left" Height="234" Margin="131,34,0,0" VerticalAlignment="Top" Width="356"/>
 
                 </Grid>
             </TabItem>

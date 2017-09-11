@@ -28,37 +28,10 @@ namespace FullFrontal_V2
             InitializeComponent();
         }
 
-        //Camera Number:
-        private static int cam_number;
-
-        VideoCapture _capture;
 
 
 
 
-        /// <summary>
-        /// Start Button Click Handler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Start_Click(object sender, RoutedEventArgs e)
-        {
 
-            if (camera_option.Text == "USB0")
-            {
-                cam_number = 0;
-            }
-            if (camera_option.Text == "USB1")
-            {
-                cam_number = 1;
-            }
-
-            Start.IsEnabled = false;
-
-            _capture = new VideoCapture(cam_number);
-                
-
-
-        }
     }
 }
