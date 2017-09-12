@@ -18,7 +18,9 @@ namespace FullFrontal_V2
         //Camera Number:
         public static int cam_number;
 
-        VideoCapture _capture;
+        private VideoCapture _capture;
+        private CascadeClassifier _cascade;
+        DispatcherTimer _timer;
 
 
         /// <summary>
@@ -41,18 +43,40 @@ namespace FullFrontal_V2
             CV_Start.IsEnabled = false;
 
             _capture = new VideoCapture(cam_number);
+            //_cascade = new CascadeClassifier(@"haarcascade_frontalface_default.xml");
+            _timer = new DispatcherTimer();
+
+            _timer.Tick += new EventHandler(timer_Tick);
+            _timer.Interval = new TimeSpan(0, 0, 0, 0, 1);
+            _timer.Start();
 
 
 
-            
+
+
 
 
 
         }
 
-        private void process_frame(VideoCapture capture_object)
+        private void process_frame(VideoCapture capture_object, CascadeClassifier cascade, DispatcherTimer timer)
         {
 
+
+        }
+
+
+        void timer_Tick(object sender, EventArgs e)
+        {
+            Mat frame = _capture.QueryFrame();
+
+            if (frame != null)
+            {
+                Mat gray = new Mat();
+                CvInvoke.CvtColor(frame, gray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+
+                CV_Output.Source = BitmapToImageSource(gray.Bitmap);
+            }
         }
 
 
