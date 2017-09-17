@@ -10,6 +10,11 @@ using System.IO;
 using System.Windows.Threading;
 using Emgu.CV;
 using System.Drawing;
+using ArduinoDriver;
+using ArduinoUploader.Hardware;
+using ArduinoUploader;
+
+
 namespace FullFrontal_V2
 {
     public partial class MainWindow : Window
@@ -22,6 +27,7 @@ namespace FullFrontal_V2
         private CascadeClassifier _cascade;
         DispatcherTimer _timer;
 
+        
 
         /// <summary>
         /// Start Button Click Handler
@@ -71,10 +77,12 @@ namespace FullFrontal_V2
                 CvInvoke.CvtColor(frame, gray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
                 CvInvoke.EqualizeHist(gray, gray);
                 Rectangle[] faces = _cascade.DetectMultiScale(gray, 1.3, 3, new System.Drawing.Size(gray.Width / 30, gray.Height / 30), new System.Drawing.Size((int)((double)gray.Width / 1.05), (int)((double)gray.Height / 1.05)));
+                
+               
                 foreach (Rectangle face in faces)
                 {
                     Emgu.CV.Structure.MCvScalar color = new Emgu.CV.Structure.MCvScalar(0, 0, 153);
-                    CvInvoke.Rectangle(frame, face, color, 1);
+                    CvInvoke.Rectangle(frame, face, color, 5);
                     
                     
                 }
@@ -82,6 +90,9 @@ namespace FullFrontal_V2
                 CV_Output.Source = BitmapToImageSource(frame.Bitmap);
             }
         }
+
+
+        
 
 
 
