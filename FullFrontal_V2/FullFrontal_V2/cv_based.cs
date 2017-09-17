@@ -43,7 +43,7 @@ namespace FullFrontal_V2
             CV_Start.IsEnabled = false;
 
             _capture = new VideoCapture(cam_number);
-            //_cascade = new CascadeClassifier(@"haarcascade_frontalface_default.xml");
+            _cascade = new CascadeClassifier(@"C:\Users\Merc.MERCURY\Documents\DDNerf\FullFrontal_V2\FullFrontal_V2\haarcascade_frontalface_default.xml");
             _timer = new DispatcherTimer();
 
             _timer.Tick += new EventHandler(timer_Tick);
@@ -59,11 +59,6 @@ namespace FullFrontal_V2
 
         }
 
-        private void process_frame(VideoCapture capture_object, CascadeClassifier cascade, DispatcherTimer timer)
-        {
-
-
-        }
 
 
         void timer_Tick(object sender, EventArgs e)
@@ -74,8 +69,17 @@ namespace FullFrontal_V2
             {
                 Mat gray = new Mat();
                 CvInvoke.CvtColor(frame, gray, Emgu.CV.CvEnum.ColorConversion.Bgr2Gray);
+                CvInvoke.EqualizeHist(gray, gray);
+                Rectangle[] faces = _cascade.DetectMultiScale(gray, 1.3, 3, new System.Drawing.Size(gray.Width / 30, gray.Height / 30), new System.Drawing.Size((int)((double)gray.Width / 1.05), (int)((double)gray.Height / 1.05)));
+                foreach (Rectangle face in faces)
+                {
+                    Emgu.CV.Structure.MCvScalar color = new Emgu.CV.Structure.MCvScalar(0, 0, 153);
+                    CvInvoke.Rectangle(frame, face, color, 1);
+                    
+                    
+                }
 
-                CV_Output.Source = BitmapToImageSource(gray.Bitmap);
+                CV_Output.Source = BitmapToImageSource(frame.Bitmap);
             }
         }
 
