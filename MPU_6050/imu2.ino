@@ -3,11 +3,14 @@
 // August 17, 2014
 // Public Domain
 #include<Wire.h>
+#include "MPU6050.h"
+#include "I2Cdev.h"
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 uint32_t timer; //it's a timer, saved as a big-ass unsigned int.  We use it to save times from the "micros()" command and subtract the present time in microseconds from the time stored in timer to calculate the time for each loop.
 double compAngleX, compAngleY; //These are the angles in the complementary filter
 #define degconvert 57.2957786 //there are like 57 degrees in a radian.
+MPU6050 accelgyro(0x68);
 
 void setup(){
  Wire.begin();
@@ -16,6 +19,10 @@ void setup(){
  Wire.write(0);     // set to zero (wakes up the MPU-6050)
  Wire.endTransmission(true);
  Serial.begin(9600);
+
+ //initialize accelgyro
+   accelgyro.initialize();
+
 
  //2) calculate pitch and roll
  double roll = atan2(AcY, AcZ)*degconvert;
@@ -28,6 +35,14 @@ void setup(){
  double compAngleX = roll;
  double compAngleY = pitch;
 
+
+ //set offsets
+ accelgyro.setXAccelOffset(-1894);
+ accelgyro.setYAccelOffset(1336);
+ accelgyro.setZAccelOffset(1459);
+ accelgyro.setXGyroOffset(81);
+ accelgyro.setYGyroOffset(-48);
+ accelgyro.setZGyroOffset(67);
  //start a timer
  timer = micros();
 
@@ -64,10 +79,10 @@ void loop(){
  //angular velocity has remained constant over the time dt, and multiply angular velocity by
  //time to get displacement.
  //The filter then adds a small correcting factor from the accelerometer ("roll" or "pitch"), so the gyroscope knows which way is down.
- compAngleX = 0.99 * (compAngleX + gyroXrate * dt) + 0.01 * roll; // Calculate the angle using a Complimentary filter
- compAngleY = 0.99 * (compAngleY + gyroYrate * dt) + 0.01 * pitch;
+ //compAngleX = 0.99 * (compAngleX + gyroXrate * dt) + 0.01 * roll; // Calculate the angle using a Complimentary filter
+ //compAngleY = 0.99 * (compAngleY + gyroYrate * dt) + 0.01 * pitch;
 
- Serial.print(compAngleX);Serial.print("\t");
- Serial.print(compAngleY);Serial.print("\n");
+ Serial.print(roll);Serial.print("\t");
+ Serial.print(pitch);Serial.print("\n");
  delay(333);
 }
