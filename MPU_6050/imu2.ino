@@ -1,5 +1,5 @@
 // MPU-6050 Short Example Sketch
-// By Arduino User JohnChi
+// By Arduino User JohnCh
 // August 17, 2014
 // Public Domain
 #include<Wire.h>
