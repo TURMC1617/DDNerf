@@ -33,8 +33,10 @@ def loop(window, joystick, arduino):
         angle = (axis * 90) + 90
         firing = sdl2.SDL_JoystickGetButton(joystick, 0)
 
+        control = 1
+
         if (arduino.in_waiting):
-            message = str(firing) + str(angle) + "\0"
+            message = str(control) + str(firing) + str(angle) + "\0"
             arduino.write(bytes(message))
             arduino.readline()
 

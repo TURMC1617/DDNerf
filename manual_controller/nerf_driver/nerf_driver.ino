@@ -3,8 +3,10 @@
   
   Serial message is a null-terminated string
   with the first byte corresponding to the
-  on/off state of the relay, and the rest of
-  the message is the servo control angle as a
+  control mode of the gun (0 for PID mode, 1
+  for continuous angle mode), the second byte
+  corresponding to the relay state, and the
+  rest of the string being the angle as a
   float.
   
   Based on
@@ -19,7 +21,8 @@ const unsigned char relayPin = 7;
 
 Servo mainMotor;
 String angleString = "";
-char relayByte = 0;
+
+
 
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
@@ -27,7 +30,7 @@ boolean stringComplete = false;  // whether the string is complete
 void setup() {
   Serial.begin(9600);
   
-  inputString.reserve(200);
+  inputString.reserve(50);
   angleString.reserve(50);
   
   mainMotor.attach(servoPin);
@@ -38,11 +41,17 @@ void setup() {
 
 void loop() {
   if (stringComplete) {
-    relayByte = inputString.charAt(0);
-    angleString = inputString.substring(1);
+    char controlByte = inputString.charAt(0);
+    char relayByte = inputString.charAt(1);
+    angleString = inputString.substring(2);
     
-    float servoAngle = atof(angleString.c_str());
-    mainMotor.write(servoAngle);
+    if (controlByte == '1') {
+      float servoAngle = atof(angleString.c_str());
+      mainMotor.write(servoAngle);
+    } else {
+      // Do PID control
+      mainMotor.write(90);
+    }
     
     if (relayByte == '1') {
       digitalWrite(relayPin, HIGH);
