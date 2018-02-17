@@ -1,28 +1,27 @@
 /*
-  Serial Event example
- 
- When new serial data arrives, this sketch adds it to a String.
- When a newline is received, the loop prints the string and 
- clears it.
- 
- A good test for this is to try it with a GPS receiver 
- that sends out NMEA 0183 sentences. 
- 
- Created 9 May 2011
- by Tom Igoe
- 
- This example code is in the public domain.
- 
+  Simple code to drive the Nerf gun via serial
+  
+  Serial message is a null-terminated string
+  with the first byte corresponding to the
+  on/off state of the relay, and the rest of
+  the message is the servo control angle as a
+  float.
+  
+  Based on
  http://www.arduino.cc/en/Tutorial/SerialEvent
  
  */
  
  #include <Servo.h>
+ 
+const unsigned char servoPin = 9;
+const unsigned char relayPin = 7;
 
 Servo mainMotor;
-String inputString = "";         // a string to hold incoming data
 String angleString = "";
 char relayByte = 0;
+
+String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
 
 void setup() {
@@ -31,17 +30,25 @@ void setup() {
   inputString.reserve(200);
   angleString.reserve(50);
   
-  mainMotor.attach(9);
+  mainMotor.attach(servoPin);
+  pinMode(relayPin, OUTPUT);
+  
+  Serial.println("0");
 }
 
 void loop() {
   if (stringComplete) {
     relayByte = inputString.charAt(0);
     angleString = inputString.substring(1);
-    Serial.println(angleString); 
     
     float servoAngle = atof(angleString.c_str());
     mainMotor.write(servoAngle);
+    
+    if (relayByte == '1') {
+      digitalWrite(relayPin, HIGH);
+    } else {
+      digitalWrite(relayPin, LOW);
+    }
     
     // clear the string:
     inputString = "";
@@ -65,7 +72,8 @@ void serialEvent() {
     // so the main loop can do something about it:
     if (inChar == '\0') {
       stringComplete = true;
-    } 
+      Serial.println("0");
+    }
   }
 }
 

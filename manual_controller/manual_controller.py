@@ -11,14 +11,13 @@ def init():
     window.show()
 
     joystick = sdl2.SDL_JoystickOpen(0)
-    arduino = serial.Serial("/dev/ttyACM2")
+    arduino = serial.Serial("/dev/ttyACM4")
+    arduino.write("190.0\0")
     
     return window, joystick, arduino
 
 def loop(window, joystick, arduino):
     running = True
-    firing = 1
-    axis = 0
 
     while (running):
         events = sdl2.ext.get_events()
@@ -26,16 +25,18 @@ def loop(window, joystick, arduino):
         for event in events:
             if event.type == sdl2.SDL_QUIT:
                 running = False
-                print "Window exiting"
                 break
 
         window.refresh()
 
         axis = sdl2.SDL_JoystickGetAxis(joystick, 0) / 32767.0
         angle = (axis * 90) + 90
+        firing = sdl2.SDL_JoystickGetButton(joystick, 0)
 
-        message = str(firing) + str(angle) + "\0"
-        arduino.write(bytes(message))
+        if (arduino.in_waiting):
+            message = str(firing) + str(angle) + "\0"
+            arduino.write(bytes(message))
+            arduino.readline()
 
 
 
