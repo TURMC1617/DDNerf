@@ -89,17 +89,13 @@ void setup() {
 	IMU.roll = 0.0;
 
 
-	cosmos.id = 1;
-	cosmos.desired_angle = 0.0;
-	cosmos.current_angle = 1.0;
-	cosmos.motor_power = 99;
-
-
 
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+
+
 	//check_serial();
 	//update_IMU();
 	//run_motors();
