@@ -2,6 +2,19 @@
 
 #------------------------------------------------------------------------------
 #
+# dependency info
+#
+#------------------------------------------------------------------------------
+#
+# This package depends on freenect, the open source Kinect SDK alternative.
+#
+# To get this on linux do the following:
+#  1. apt-get install freenect
+#  2. for python wrapper, follow instructions here:
+#     https://github.com/OpenKinect/libfreenect/tree/master/wrappers/python
+#  
+#------------------------------------------------------------------------------
+#
 # imports
 #
 #------------------------------------------------------------------------------
