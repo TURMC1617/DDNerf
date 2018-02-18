@@ -1,3 +1,7 @@
+#include <I2Cdev.h>
+#include <MPU6050.h>
+#include <helper_3dmath.h>
+#include <Wire.h>
 #include <PID_v1.h>
 #include <Servo.h>
 
@@ -11,6 +15,8 @@
 #define RELAY_PIN 3
 #define MAX_PWM 255
 #define COSMOS
+#define IMU_PIN1 3
+#define IMU_PIN2 5
 
 Servo motor;
 
@@ -23,16 +29,18 @@ bool IMU_updated = false;
 
 bool power_off = true;
 
-
-
-struct imuStruct {
-	float yaw;
-	float pitch;
-	float roll;
-
-} IMU, IMU_init, IMU_adjusted;
-
-
+MPU6050 mpu;
+float pitch = 0;
+float roll = 0;
+float yaw = 0;
+float v_pitch;
+float v_roll;
+float v_yaw;
+float a_pitch;
+float a_roll;
+float a_yaw;
+int16_t ax, ay, az;
+int16_t gx, gy, gz;
 
 
 
@@ -73,33 +81,59 @@ POn: Either P_ON_E (Default) or P_ON_M. Allows Proportional on Measurement to be
 
 // the setup function runs once when you press reset or power the board
 void setup() {
-
-	motor.attach(MOTOR_PIN);
-	
-	//pinMode(MOTOR_PIN, OUTPUT);
-
 	Serial.begin(576000);
-
+	motor.attach(MOTOR_PIN);
+	mpu.initialize();
+	pinMode(IMU_PIN1, OUTPUT);
+	pinMode(IMU_PIN2, OUTPUT);
 	//pinMode(MOTOR_PIN, OUTPUT);
 	pinMode(RELAY_PIN, OUTPUT);
-
-
-	IMU.yaw = 0.0;
-	IMU.pitch = 0.0;
-	IMU.roll = 0.0;
-
-
+	mpu.setXAccelOffset(-1812);
+	mpu.setYAccelOffset(1379);
+	mpu.setZAccelOffset(1427);
+	mpu.setXGyroOffset(77);
+	mpu.setYGyroOffset(-47);
+	mpu.setZGyroOffset(64);
 
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
 
+	
+
 
 	//check_serial();
 	//update_IMU();
 	//run_motors();
   
+}
+
+void update_IMU()
+{
+	mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+	v_pitch = (gx / 131);
+	if (v_pitch == -1)
+		//error filtering
+	{
+		v_pitch = 0;
+	}
+	v_roll = (gy / 131);
+	if (v_roll == 1)
+		//error filtering
+	{
+		v_roll = 0;
+	}
+	v_yaw = gz / 131;
+	a_pitch = (v_pitch*0.046);
+	a_roll = (v_roll*0.046);
+	a_yaw = (v_yaw*0.045);
+	pitch = pitch + a_pitch;
+	roll = roll + a_roll;
+	yaw = yaw + a_yaw;
+
+	IMU_updated = true;
+
 }
 
 void run_motors()
