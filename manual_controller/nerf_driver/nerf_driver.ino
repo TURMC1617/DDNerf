@@ -16,8 +16,9 @@
  
  #include <Servo.h>
  
-const unsigned char servoPin = 9;
+const unsigned char servoPin = 10;
 const unsigned char relayPin = 7;
+const unsigned char buzzerPin = 3;
 
 Servo mainMotor;
 String angleString = "";
@@ -27,6 +28,18 @@ String angleString = "";
 String inputString = "";         // a string to hold incoming data
 boolean stringComplete = false;  // whether the string is complete
 
+void startupTone() {
+  tone(buzzerPin, 262);
+  delay(1000);
+  tone(buzzerPin, 330);
+  delay(1000);
+  tone(buzzerPin, 392);
+  delay(1000);
+  tone(buzzerPin, 523);
+  delay(1000);
+  noTone(buzzerPin);
+}
+
 void setup() {
   Serial.begin(9600);
   
@@ -35,6 +48,8 @@ void setup() {
   
   mainMotor.attach(servoPin);
   pinMode(relayPin, OUTPUT);
+  
+  startupTone();
   
   Serial.println("0");
 }

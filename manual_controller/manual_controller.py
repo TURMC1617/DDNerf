@@ -11,7 +11,7 @@ def init():
     window.show()
 
     joystick = sdl2.SDL_JoystickOpen(0)
-    arduino = serial.Serial("/dev/ttyACM4")
+    arduino = serial.Serial(sys.argv[1])
     arduino.write("190.0\0")
     
     return window, joystick, arduino
