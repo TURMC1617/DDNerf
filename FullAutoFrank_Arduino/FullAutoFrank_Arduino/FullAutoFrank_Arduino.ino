@@ -48,18 +48,16 @@ int16_t gx, gy, gz;
 
 
 
-//PID Jazz
+//PID Variables
 float kp = 2.5;
 float ki = 4.0;
 float kd = 25.0;
 
-float error_test = 0.0;
+double Desired_Setpoint;
+double Measured_Input;
+double Motor_Output;
 
-double Setpoint;
-double Input;
-double Output;
-
-PID pid_controller(&Input, &Output, &Setpoint, kp, ki, kd, P_ON_M, DIRECT);
+PID pid_controller(&Measured_Input, &Motor_Output, &Desired_Setpoint, kp, ki, kd, P_ON_M, DIRECT);
 //P_ON_M specifies that Proportional on Measurement be used
 //P_ON_E (Proportional on Error) is the default behavior
 /*
@@ -116,14 +114,8 @@ void setup() {
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+
 	check_serial();
-	
-
-
-	//check_serial();
-	//update_IMU();
-	//run_motors();
-  
 }
 
 /*
@@ -179,14 +171,6 @@ void check_serial()
 			digitalWrite(RELAY_PIN, LOW);
 		}
 
-
-		relayByte = inputString.charAt(1);
-		angleString = inputString.substring(1);
-		
-
-		float desired_angle = atof(angleString.c_str());
-		run_motors(desired_angle);
-
 		//clear the string:
 		inputString = "";
 		stringComplete = false;
@@ -222,34 +206,19 @@ void update_IMU()
 
 void run_motors(float desired_angle)
 {
-	static uint32_t last_update_time = millis();
-
-	uint32_t update_time = millis();
-	//turn off all motors
-	if (power_off)
+	
+	update_IMU();
+	Serial.print("yaw: ");
+	Serial.println(yaw);
+	
+	if (IMU_updated)
 	{
-		motor.write(90);
-
-	}
-	else if (IMU_updated)
-	{
-		float error = IMU_adjusted.yaw - desired_angle;
-		float motor_power = getPID(error);
-		error_test = error;
-
-		cosmos.motor_power = motor_power;
-		cosmos.current_angle = IMU_adjusted.yaw;
-		cosmos.desired_angle = desired_angle;
-
-		//motor.write(motor_power);
-
-		last_update_time = udpate_time;
-
+		Desired_Setpoint = desired_angle;
+		Measured_Input = yaw;
+		pid_controller.Compute();
+		motor.write(Motor_Output);
 		IMU_updated = false;
 	}
-}
 
-void update_IMU()
-{
 
 }
