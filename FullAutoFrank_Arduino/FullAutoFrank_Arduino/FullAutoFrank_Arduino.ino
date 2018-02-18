@@ -13,16 +13,19 @@
 
 #define MOTOR_PIN 1
 #define RELAY_PIN 3
-#define MAX_PWM 255
-#define COSMOS
 #define IMU_PIN1 3
 #define IMU_PIN2 5
+#define BUZZER_PIN 4
 
 Servo motor;
 
+// Serial Comms
+String inputString = "";
+String angleString = "";
+boolean stringComplete = false;
 
 
-float desired_angle;
+//float desired_angle;
 
 //IMU global variables
 bool IMU_updated = false;
@@ -44,17 +47,6 @@ int16_t gx, gy, gz;
 
 
 
-struct cosmos_t
-{
-	uint8_t length;
-	uint8_t id;
-	float desired_angle;
-	float current_angle;
-	int motor_power;
-	float p;
-	float i;
-	float d;
-}cosmos;
 
 //PID Jazz
 float kp = 2.5;
@@ -79,14 +71,36 @@ Direction: Either DIRECT or REVERSE. determines which direction the output will 
 POn: Either P_ON_E (Default) or P_ON_M. Allows Proportional on Measurement to be specified.
 */
 
+
+
+void startupTone() {
+	tone(BUZZER_PIN, 262);
+	delay(1000);
+	tone(BUZZER_PIN, 330);
+	delay(1000);
+	tone(BUZZER_PIN, 392);
+	delay(1000);
+	tone(BUZZER_PIN, 523);
+	delay(1000);
+	noTone(BUZZER_PIN);
+
+}
+
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(576000);
+
+	inputString.reserve(200);
+	angleString.reserve(50);
+
+	//Setup Motor
 	motor.attach(MOTOR_PIN);
+
+
+	// Start IMU
 	mpu.initialize();
 	pinMode(IMU_PIN1, OUTPUT);
 	pinMode(IMU_PIN2, OUTPUT);
-	//pinMode(MOTOR_PIN, OUTPUT);
 	pinMode(RELAY_PIN, OUTPUT);
 	mpu.setXAccelOffset(-1812);
 	mpu.setYAccelOffset(1379);
@@ -95,11 +109,14 @@ void setup() {
 	mpu.setYGyroOffset(-47);
 	mpu.setZGyroOffset(64);
 
+	startupTone();
+	Serial.println("0");
+
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-
+	check_serial();
 	
 
 
@@ -107,6 +124,73 @@ void loop() {
 	//update_IMU();
 	//run_motors();
   
+}
+
+/*
+SerialEvent occurs whenever a new data comes in the
+hardware serial RX.  This routine is run between each
+time loop() runs, so using delay inside loop can delay
+response.  Multiple bytes of data may be available.
+*/
+void serialEvent() {
+	while (Serial.available()) {
+		// get the new byte:
+		char inChar = (char)Serial.read();
+		// add it to the inputString:
+		inputString += inChar;
+		// if the incoming character is a newline, set a flag
+		// so the main loop can do something about it:
+		if (inChar == '\0') {
+			stringComplete = true;
+		}
+	}
+}
+
+
+
+void check_serial()
+{
+	if (stringComplete)
+	{
+		char controlByte = inputString.charAt(0);
+		char relayByte = inputString.charAt(1);
+		angleString = inputString.substring(2);
+
+		if (controlByte == '1')
+		{
+			float desired_angle = atof(angleString.c_str());
+			motor.write(desired_angle);
+		}
+		// Do PID Control for autonomous
+		else if (controlByte = '2')
+		{
+			float desired_angle = atof(angleString.c_str());
+			run_motors(desired_angle);
+
+		}
+
+		// Check relay status
+		if (relayByte == '1')
+		{
+			digitalWrite(RELAY_PIN, HIGH);
+		}
+		else
+		{
+			digitalWrite(RELAY_PIN, LOW);
+		}
+
+
+		relayByte = inputString.charAt(1);
+		angleString = inputString.substring(1);
+		
+
+		float desired_angle = atof(angleString.c_str());
+		run_motors(desired_angle);
+
+		//clear the string:
+		inputString = "";
+		stringComplete = false;
+	}
 }
 
 void update_IMU()
@@ -136,7 +220,7 @@ void update_IMU()
 
 }
 
-void run_motors()
+void run_motors(float desired_angle)
 {
 	static uint32_t last_update_time = millis();
 
