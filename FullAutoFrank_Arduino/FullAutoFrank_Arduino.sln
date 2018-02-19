@@ -8,7 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B30BDA81-A7C5-4B1B-9655-2209B755F7DC}"
 	ProjectSection(SolutionItems) = preProject
 		FullAutoFrank_Arduino\dog_receiver_v0.0.ino = FullAutoFrank_Arduino\dog_receiver_v0.0.ino
+		..\Nerf\fullfrontal2.py = ..\Nerf\fullfrontal2.py
+		fullfrontal3.py = fullfrontal3.py
 		..\MPU_6050\imu2\imu2.ino = ..\MPU_6050\imu2\imu2.ino
+		..\manual_controller\manual_controller.py = ..\manual_controller\manual_controller.py
 	EndProjectSection
 EndProject
 Global
