@@ -93,11 +93,20 @@ def processFrame(frame, depth):
 		cv2.rectangle(frame, (x, y), (x+w, y+h), (0,0,153), 5)  
 		cv2.circle(frame, (center), 3, (0, 200, 0), -1)
 
-	# if a face was found and there is depth information, print the distance
-	# to the face
+	# if a face was found and there is depth information, return
+	# screen space coordinates (normalized from -1 to 1)
 	if frontal != () and depth != []:
-		print depth[center[1], center[0]]
+		x = ((center[0] / frame.shape[0]) - 0.5) * 2
+		y = ((center[1] / frame.shape[1]) - 0.5) * 2
+		return (x, y, depth[center[1], center[0]])
 
+	return None
+
+def get_angle():
+	# Transform x, y, z coordinates using inverse of camera projection
+	# matrix
+	# Angle = atan(z / x)
+	pass
 
 def window_init():
 	sdl2.ext.init()
@@ -127,6 +136,7 @@ def render_image(window_array, img):
 def mainloop(window, joystick, arduino, camera, kinect):
 	running = True
 	window_array = sdl2.ext.pixels3d(window.get_surface())
+	current_angle = 0
 
 	while (running):
 		events = sdl2.ext.get_events()
@@ -147,15 +157,18 @@ def mainloop(window, joystick, arduino, camera, kinect):
 		# if (arduino.in_waiting):
 		# 	message = str(control) + str(firing) + str(angle) + "\0"
 		# 	arduino.write(bytes(message))
-		# 	arduino.readline()
+		# 	angle = float(arduino.readline())
 
 		# Render image
 		# _, im = camera.read()
 		# render_image(window_array, im)
 
-		depth, _ = fn.sync_get_depth()
 		rgb, _ = fn.sync_get_video()
-		processFrame(rgb, depth)
+		depth, _ = fn.sync_get_depth()
+		
+		pos = processFrame(rgb, depth)
+		if (pos is not None):
+			print get_angle(pos)
 
 		render_image(window_array, rgb)
 
