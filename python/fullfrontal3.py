@@ -160,9 +160,9 @@ def mainloop(window, joystick, arduino, camera, kinect):
 
 		control = 1
 		#print "Here"
-		if (arduino.in_waiting):
-			message = str(control) + str(firing) + str(angle) + "\0"
-			arduino.write(bytes(message))
+		#if (arduino.in_waiting):
+		message = str(control) + str(firing) + str(angle) + "\0"
+		arduino.write(bytes(message))
 
 		#arduino.write(bytes(message))
 		#print arduino.in_waiting
