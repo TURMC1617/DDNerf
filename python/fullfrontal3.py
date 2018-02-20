@@ -33,6 +33,7 @@ import sdl2.ext
 import serial
 # import winsound #to play sound effects
 import threading
+from time import sleep
 import math as Math
 
 #------------------------------------------------------------------------------
@@ -122,8 +123,9 @@ def window_init():
 def manual_init():
 	joystick = sdl2.SDL_JoystickOpen(0)
 	arduino = 0
-	arduino = serial.Serial(sys.argv[1])
-	arduino.write("190.0\0")
+	#arduino = serial.Serial(sys.argv[1])
+	arduino = serial.Serial('/dev/ttyACM0',115200)
+	#arduino.write("190.0\0")
 
 	#camera = cv2.VideoCapture(0)
 	camera = None
@@ -151,18 +153,30 @@ def mainloop(window, joystick, arduino, camera, kinect):
 		# Get joystick angle
 		axis = sdl2.SDL_JoystickGetAxis(joystick, 0) / 32767.0
 		#angle = (axis * 90) + 90
-		angle = 180
-		firing = sdl2.SDL_JoystickGetButton(joystick, 0)
+		#print(angle)
+		angle = 180.00
+		#firing = sdl2.SDL_JoystickGetButton(joystick, 0)
+		firing = 1
 
-		control = 2
+		control = 1
 		#print "Here"
-		print arduino.in_waiting
-
 		if (arduino.in_waiting):
-			message = str(control) + str(firing) + "\0"
+			message = str(control) + str(firing) + str(angle) + "\0"
 			arduino.write(bytes(message))
-			angle = float(arduino.readline())
-			print angle
+
+		#arduino.write(bytes(message))
+		#print arduino.in_waiting
+		#sleep(0.1)
+
+		#if (arduino.in_waiting > 0):
+			#message = str(control) + str(firing) + "\0"
+			#arduino.write(bytes(message))
+		    #rint "Here"
+		#	angle = (arduino.readline())
+		#	print angle
+
+		#angle = arduino.readline()
+		#print angle
 
 		# Render image
 		# _, im = camera.read()
