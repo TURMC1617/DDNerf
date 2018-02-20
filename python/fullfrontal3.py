@@ -16,10 +16,12 @@
 #------------------------------------------------------------------------------
 
 # computer vision
-import cv2
+# import cv2
 
 # kinect
 import freenect as fn
+import cv2
+import frame_convert2
 
 # general 
 import time
@@ -38,13 +40,12 @@ import threading
 #
 #------------------------------------------------------------------------------
 
-detect = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+detect = cv2.CascadeClassifier('haar.xml')
 
 # kinect stuff
 KINECT_PORT = 0
 
-# audio
-PLAY_AUDIO = True
+
 
 # window variables
 window_size = (400, 300)
@@ -123,12 +124,11 @@ def manual_init():
 	# arduino = serial.Serial(sys.argv[1])
 	# arduino.write("190.0\0")
 
-	camera = cv2.VideoCapture(0)
-	
+	#camera = cv2.VideoCapture(0)
+	camera = None
 	return joystick, arduino, camera
 
 def render_image(window_array, img):
-	img = np.insert(img, 3, 255, axis=2)
 	img = np.rot90(img)
 	img = scipy.misc.imresize(img, window_size)
 	np.copyto(window_array, img)
@@ -149,35 +149,36 @@ def mainloop(window, joystick, arduino, camera, kinect):
 
 		# Get joystick angle
 		axis = sdl2.SDL_JoystickGetAxis(joystick, 0) / 32767.0
-		angle = (axis * 90) + 90
+		#angle = (axis * 90) + 90
+		angle = 180
 		firing = sdl2.SDL_JoystickGetButton(joystick, 0)
 
-		control = 1
+		control = 0
 
-		# if (arduino.in_waiting):
-		# 	message = str(control) + str(firing) + str(angle) + "\0"
-		# 	arduino.write(bytes(message))
-		# 	angle = float(arduino.readline())
+		if (arduino.in_waiting):
+			message = str(control) + str(firing) + str(angle) + "\0"
+			arduino.write(bytes(message))
+			angle = float(arduino.readline())
+			print angle
 
 		# Render image
 		# _, im = camera.read()
 		# render_image(window_array, im)
 
-		rgb, _ = fn.sync_get_video()
-		depth, _ = fn.sync_get_depth()
+		bgr = frame_convert2.video_cv(fn.sync_get_video()[0])
+		bgr = np.insert(bgr, 3, 255, axis=2)
+		depth =  frame_convert2.pretty_depth_cv(fn.sync_get_depth()[0])
 		
-		pos = processFrame(rgb, depth)
+		pos = processFrame(bgr, depth)
 		if (pos is not None):
-			print get_angle(pos)
+			print pos[2]
 
-		render_image(window_array, rgb)
+		render_image(window_array, bgr)
 
 		window.refresh()
 
 def manual_quit(joystick, arduino, camera):
 	sdl2.SDL_JoystickClose(joystick)
-
-	sdl2.SDL_DestroyTexture(texture)
 	sdl2.SDL_DestroyRenderer(renderer.renderer)
 
 	sdl2.ext.quit()
@@ -187,7 +188,8 @@ def manual_quit(joystick, arduino, camera):
 
 def vision_init():	
 	# initialize the kinect
-	kin = fn.open_device(fn.init(), KINECT_PORT)
+	#kin = fn.open_device(fn.init(), KINECT_PORT)
+	kin = None
 	fn.set_depth_mode(kin, fn.RESOLUTION_MEDIUM, fn.DEPTH_MM)
 
 	return kin
