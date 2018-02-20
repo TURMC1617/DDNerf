@@ -33,6 +33,7 @@ import sdl2.ext
 import serial
 # import winsound #to play sound effects
 import threading
+import math as Math
 
 #------------------------------------------------------------------------------
 #
@@ -121,8 +122,8 @@ def window_init():
 def manual_init():
 	joystick = sdl2.SDL_JoystickOpen(0)
 	arduino = 0
-	# arduino = serial.Serial(sys.argv[1])
-	# arduino.write("190.0\0")
+	arduino = serial.Serial(sys.argv[1])
+	arduino.write("190.0\0")
 
 	#camera = cv2.VideoCapture(0)
 	camera = None
@@ -153,10 +154,12 @@ def mainloop(window, joystick, arduino, camera, kinect):
 		angle = 180
 		firing = sdl2.SDL_JoystickGetButton(joystick, 0)
 
-		control = 0
+		control = 2
+		#print "Here"
+		print arduino.in_waiting
 
 		if (arduino.in_waiting):
-			message = str(control) + str(firing) + str(angle) + "\0"
+			message = str(control) + str(firing) + "\0"
 			arduino.write(bytes(message))
 			angle = float(arduino.readline())
 			print angle
@@ -170,8 +173,8 @@ def mainloop(window, joystick, arduino, camera, kinect):
 		depth =  frame_convert2.pretty_depth_cv(fn.sync_get_depth()[0])
 		
 		pos = processFrame(bgr, depth)
-		if (pos is not None):
-			print pos[2]
+		#if (pos is not None):
+		#	print pos[2]
 
 		render_image(window_array, bgr)
 
